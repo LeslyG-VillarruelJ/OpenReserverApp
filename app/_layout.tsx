@@ -1,24 +1,28 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import Header from "@/src/presentation/components/layouts/header";
+import { Stack } from "expo-router";
+import { StatusBar } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import '../global.css';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
-
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-
+export default function Layout() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <SafeAreaView style={{ flex: 1 }}>
+        <StatusBar
+          backgroundColor="#ffffff"
+          translucent={false}
+          hidden={false}
+        />
+
+        {/* Header global */}
+        <Header />
+
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="auth/signin" />
+          <Stack.Screen name="auth/forget-password" />
+          <Stack.Screen name="auth/signup" />
+        </Stack>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
