@@ -1,23 +1,25 @@
+import { SignInDto } from "@/src/models/auth/infraestructure/dtos/sign.dto";
+import { useSignIn } from "@/src/models/auth/infraestructure/mutations/useSignin";
+import CheckBox from "@/src/presentation/components/commons/checkbox";
+import { Input } from "@/src/presentation/components/commons/input";
+import { DropdownOption, DropdownSelector } from "@/src/presentation/components/commons/picker";
+import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   ScrollView,
   Text,
   TouchableOpacity,
   View
 } from "react-native";
-// import { useAuthStore } from "@/src/shared/stores/authStore";
-import CheckBox from "@/src/presentation/components/commons/checkbox";
-import { Input } from "@/src/presentation/components/commons/input";
-import { DropdownOption, DropdownSelector } from "@/src/presentation/components/commons/picker";
-import { Feather } from "@expo/vector-icons";
-import HeaderOptions from "../../components/layouts/options-header";
+import Icon from "react-native-vector-icons/FontAwesome";
 
 const roles: DropdownOption[] = [
-  { key: "user", label: "Usuario" },
-  { key: "provider", label: "Proveedor" },
-  { key: "admin", label: "Administrador" },
+  { key: "USER", label: "Usuario" },
+  { key: "SUPPLIER", label: "Proveedor" },
+  { key: "ADMIN", label: "Administrador" },
 ];
 
 export interface LoginValues {
@@ -28,43 +30,32 @@ export interface LoginValues {
 
 const LoginScreen = () => {
   const router = useRouter();
-  // const login = useAuthStore((state) => state.login);
 
   const [formData, setFormData] = useState<LoginValues>({
     email: "",
     password: "",
-    role: "user",
+    role: "USER",
   });
 
-  const [loading, setLoading] = useState(false);
+  const { mutate: signIn, isPending, isError, error, isSuccess } = useSignIn();
+
+  useEffect(() => {
+    if (isSuccess) {
+      Alert.alert("Éxito", "Usuario ingresado exitosamente");
+      router.push("/auth/forget-password");
+    }
+  }, [isPending]);
 
   const handleLogin = () => {
-    /* setLoading(true);
+    console.log("Ingreso a la sesión como: " + formData.email + " " + formData.password + " " + formData.role);
 
-    setTimeout(() => {
-      const userData = {
-        id: 1,
-        name: formData.email.split("@")[0],
-        email: formData.email,
-        role: formData.role,
-        avatar: `https://ui-avatars.com/api/?name=${formData.email.split("@")[0]}&background=1ABC9C&color=fff`,
-      };
+    const signInData: SignInDto = {
+      email: formData.email,
+      password: formData.password,
+      role: formData.role
+    };
 
-      login(userData, "mock-token");
-      setLoading(false);
-
-      // Navegación por rol
-      switch (formData.role) {
-        case "admin":
-          router.push("/admin");
-          break;
-        case "provider":
-          router.push("/provider");
-          break;
-        default:
-          router.push("/user");
-      }
-    }, 1000); */
+    signIn(signInData);
   };
 
   return (
@@ -123,6 +114,13 @@ const LoginScreen = () => {
           />
         </View>
 
+        {/* Errores */}
+        {isError && (
+          <View className="mx-10 mt-4 p-2 rounded-full bg-red-100 border-2 border-red-400">
+            <Text className="text-red">{error.message}</Text>
+          </View>
+        )}
+
         {/* Remember me */}
         <View className="flex-row justify-between items-center mt-6">
           <CheckBox text="Recordarme" />
@@ -136,10 +134,10 @@ const LoginScreen = () => {
         {/* Botón Login */}
         <TouchableOpacity
           className="bg-emerald-500 p-4 rounded-xl items-center mt-4"
-          disabled={loading}
+          disabled={isPending}
           onPress={handleLogin}
         >
-          {loading ? (
+          {isPending ? (
             <ActivityIndicator color="#fff" />
           ) : (
             <Text className="text-white font-medium text-lg">Iniciar Sesión</Text>
@@ -147,21 +145,21 @@ const LoginScreen = () => {
         </TouchableOpacity>
 
         {/* Part with Google or Twitter */}
-        {/* <View className="flex-row items-center my-5">
-          <View className="flex-1 border-2 border-gray-200 rounded-xl" /> */}
+        <View className="flex-row items-center my-5">
+          <View className="flex-1 border-2 border-gray-200 rounded-xl" />
 
           {/* Text */}
-          {/* <Text style={{ marginHorizontal: 10, color: '#757575', fontSize: 14 }}>
+          <Text style={{ marginHorizontal: 10, color: '#757575', fontSize: 14 }}>
             O continúa con
           </Text>
 
           <View className="flex-1 border-2 border-gray-200 rounded-xl" />
-        </View> */}
+        </View>
 
-        {/* <View className="flex-row gap-6">
+        <View className="flex-row gap-6">
           <TouchableOpacity
             className="flex-row flex-1 bg-white border-2 border-gray-300 rounded-xl items-center justify-center mt-2 gap-2"
-            disabled={loading}
+            disabled={isPending}
             onPress={handleLogin}
           >
             <Icon name="google" size={24} color="gray" />
@@ -170,13 +168,13 @@ const LoginScreen = () => {
 
           <TouchableOpacity
             className="flex-row flex-1 bg-white border-2 border-gray-300 rounded-xl items-center justify-center mt-2 py-2 gap-2"
-            disabled={loading}
+            disabled={isPending}
             onPress={handleLogin}
           >
             <Icon name="twitter" size={24} color="gray" />
             <Text className="text-gray-600 font-semibold">Twitter</Text>
           </TouchableOpacity>
-        </View> */}
+        </View>
 
         {/* Registro */}
         <View className="flex-row justify-center items-center mt-6">
@@ -187,7 +185,7 @@ const LoginScreen = () => {
         </View>
       </View>
 
-      <HeaderOptions selectedValue={'user'} />
+      {/* <HeaderOptions selectedValue={'user'} /> */}
     </ScrollView>
   );
 };

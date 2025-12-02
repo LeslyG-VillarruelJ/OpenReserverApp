@@ -1,4 +1,4 @@
-import SignUpScreen from '@/src/presentation/screens/auth/signup';
+import SignUpScreen from '@/src/presentation/screens/auth/signup-client';
 import React from 'react';
 
 const SighUpRoute = () => {
